@@ -197,7 +197,7 @@ const MainContainer = styled.main`
 
   h2 {
     margin-top: 20px;
-    font-size: 1.2em;
+    font-size: 1.1em;
     text-align: center;
   }
 `;
