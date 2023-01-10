@@ -34,7 +34,10 @@ const AppBar = () => {
   };
 
   return (
-    <AppBarContainer onClick={() => openFeedback()}>
+    <AppBarContainer
+      onClick={() => {
+        // openFeedback();
+      }}>
       Do you have any feedback? ✋🏻 <ArrowForwardIcon />
       <div
         dangerouslySetInnerHTML={{
