@@ -4,7 +4,7 @@ import { dbService } from "../utils/fbase";
 import styled from "@emotion/styled";
 
 export type ProblemType = {
-  id: string;
+  uid: string;
   question: string;
   answer: string;
   createdAt: any;
@@ -33,9 +33,9 @@ const Problem: NextPage = () => {
     <div>
       <div>Problem</div>
       <div>
-        {problems.map((item) => {
+        {problems.map((item, i) => {
           return (
-            <ProblemWrapper key={item.id}>
+            <ProblemWrapper key={i}>
               <div>{item.question}</div>
               <div>{item.answer}</div>
             </ProblemWrapper>

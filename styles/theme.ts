@@ -4,6 +4,8 @@ export const theme = {
   purple03: "#A555EC",
   grey: "#EEF2F6",
   darkGrey: "#2F3747",
+  blue01: "#34b3f1",
+  blue02: "#3496F1",
 };
 
 export const lightTheme = {

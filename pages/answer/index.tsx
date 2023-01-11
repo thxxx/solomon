@@ -16,6 +16,7 @@ import { ArrowForwardIcon, AtSignIcon, ChatIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import { dbService } from "../../utils/fbase";
 import FeedbackModal from "../../components/FeedbackModal";
+import Head from "next/head";
 
 enum ChatType {
   bot = "bot",
@@ -32,16 +33,17 @@ const Answer: NextPage = () => {
   const [responses, setResponses] = useState<any[]>([]);
   const [greeting, setGreeting] = useState<string>("");
   const [chats, setChats] = useState<ChatOne[]>();
-  const { question, answer } = useStore();
+  const { question, uid } = useStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     let res: any[] = [];
     for (let i = 0; i < 5; i++) {
       res.push({
-        solution: dummy[0].response.split("\n").filter((doc) => doc.length > 0)[
-          0 + i * 3
-        ],
+        solution: dummy[0].response
+          .split("\n")
+          .filter((doc) => doc.length > 0)
+          [0 + i * 3].split(":")[1],
         description: dummy[0].response
           .split("\n")
           .filter((doc) => doc.length > 0)
@@ -62,9 +64,53 @@ const Answer: NextPage = () => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  const submitChat = (text: string) => {
+  const callApi = async () => {
+    // console.log("요청 보내기");
+
+    // const body = {
+    //   type: "chat",
+    //   query: text,
+    // problem:question
+    // };
+
+    // const response = await fetch("/api/hello", {
+    //   method: "POST",
+    //   body: JSON.stringify(body),
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     "Access-Control-Allow-Origin": "*",
+    //   },
+    // });
+    // const output = await response.json();
+    // console.log("API 결과", output.data[0]);
+    // return output;
+    return "answer";
+  };
+
+  const submitChat = async (text: string) => {
     console.log("채팅을 보낸다.", text);
-    if (chats) return;
+    if (text.length < 2) return;
+    if (chats && chats.length > 5) return;
+
+    setChats([
+      {
+        type: ChatType.client,
+        text: text,
+      },
+    ]);
+
+    const response = await callApi();
+
+    const body = {
+      createdAt: new Date(),
+      chat: text,
+      answer: response,
+      problem: question,
+      uid: uid,
+    };
+
+    await dbService.collection("chat").add(body);
+
     setChats([
       {
         type: ChatType.client,
@@ -72,88 +118,104 @@ const Answer: NextPage = () => {
       },
       {
         type: ChatType.bot,
-        text: "You're welcome!",
+        text: response,
       },
     ]);
+
     setText("");
   };
 
   return (
-    <AnswerContainer>
-      <ProblemBox>
-        <p className="label">Problem what you shared with us :</p>
-        <p>{question}</p>
-      </ProblemBox>
+    <>
+      <Head>
+        <title>Solomon Answer</title>
+        <meta name="description" content="Solomon will give you solution" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <AnswerContainer>
+        <ProblemBox>
+          <p className="label">Problem what you shared with us :</p>
+          <p>{question}</p>
+        </ProblemBox>
 
-      <ImageWrapper>
-        <Image src="/king.png" alt="we" width={50} height={50} />
-      </ImageWrapper>
-      <ResponseBox>
-        <span className="tail"></span>
-        <p className="greeting">{greeting}</p>
-        {responses.map((item, i) => {
-          return (
-            <Response key={i}>
-              {/* <Divider color="black" width={4} /> */}
-              <div className="solution">{item.solution}</div>
-              <div className="desc">
-                <p className="label">Description</p>
-                {item.description}
-              </div>
-              <div className="link">{item.link}</div>
-            </Response>
-          );
+        <ImageWrapper>
+          <Image src="/king.png" alt="we" width={55} height={55} />
+        </ImageWrapper>
+        <ResponseBox>
+          <span className="tail"></span>
+          <p className="greeting">{greeting}</p>
+          {responses.map((item, i) => {
+            return (
+              <Response key={i}>
+                {/* <Divider color="black" width={4} /> */}
+                <div className="solution">
+                  <span>Solution {i}: </span>
+                  {item.solution}
+                </div>
+                <div className="desc">
+                  <p className="label">Description</p>
+                  {item.description}
+                </div>
+                <div className="link">{item.link}</div>
+              </Response>
+            );
+          })}
+        </ResponseBox>
+        <FeedbackBox onClick={() => onOpen()}>
+          <ChatIcon />
+          <p>Also We need your help. </p>
+        </FeedbackBox>
+        <br />
+        {chats?.map((item, i) => {
+          if (item.type === ChatType.client) {
+            return (
+              <ChatBubble key={i}>
+                <div>{item.text}</div>
+              </ChatBubble>
+            );
+          } else {
+            return (
+              <ChatBubble left key={i}>
+                <div>{item.text}</div>
+              </ChatBubble>
+            );
+          }
         })}
-      </ResponseBox>
-      <FeedbackBox onClick={() => onOpen()}>
-        <ChatIcon />
-        <p>Also We need your help. </p>
-      </FeedbackBox>
-      <br />
-      {chats?.map((item, i) => {
-        if (item.type === ChatType.client) {
-          return (
-            <ChatBubble key={i}>
-              <div>{item.text}</div>
-            </ChatBubble>
-          );
-        } else {
-          return (
-            <ChatBubble left key={i}>
-              <div>{item.text}</div>
-            </ChatBubble>
-          );
-        }
-      })}
 
-      <InputWrapperFixed
-        onSubmit={(e: any) => {
-          submitChat(text);
-          e.preventDefault();
-        }}>
-        <CustomInput
-          isDisabled={chats ? true : false}
-          placeholder="Please say thank you!"
-          p="24px 15px"
-          value={text}
-          onChange={(e) => setText(e.currentTarget.value)}
+        <InputWrapperFixed
+          onSubmit={(e: any) => {
+            submitChat(text);
+            e.preventDefault();
+          }}>
+          <CustomInput
+            isDisabled={chats && chats.length > 5 ? true : false}
+            placeholder="You can say thank you to the solomon or any other feedback!"
+            p="24px 15px"
+            value={text}
+            onChange={(e) => setText(e.currentTarget.value)}
+          />
+          <span className="icon" onClick={(e) => submitChat(text)}>
+            <ArrowForwardIcon color="whiteAlpha.800" />
+          </span>
+        </InputWrapperFixed>
+        <CustomButton
+          onClick={(e) => {
+            router.push({
+              pathname: "/",
+              // query: { isFromHome: true, text: value },
+            });
+          }}>
+          Go Back to tell more problem!
+        </CustomButton>
+        <FeedbackModal
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onClose={onClose}
+          problem={question}
         />
-        <span className="icon" onClick={(e) => submitChat(text)}>
-          <ArrowForwardIcon color="whiteAlpha.800" />
-        </span>
-      </InputWrapperFixed>
-      <CustomButton
-        onClick={(e) => {
-          router.push({
-            pathname: "/",
-            // query: { isFromHome: true, text: value },
-          });
-        }}>
-        Go to tell more problem!
-      </CustomButton>
-      <FeedbackModal isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
-      {/*   <Input value={text} onChange={(e) => setText(e.currentTarget.value)} /> */}
-    </AnswerContainer>
+        {/*   <Input value={text} onChange={(e) => setText(e.currentTarget.value)} /> */}
+      </AnswerContainer>
+    </>
   );
 };
 
@@ -207,6 +269,10 @@ const Response = styled.div`
     padding: 8px 10px;
     margin-top: 15px;
     font-weight: 700;
+
+    span{
+      color${({ theme }) => theme.blue02};
+    }
   }
 
   .desc {
@@ -222,19 +288,21 @@ const Response = styled.div`
 const ProblemBox = styled.div`
   padding: 12px 18px;
   border-radius: 8px;
-  background: ${({ theme }) => theme.bgColor01 + "fc"};
+  background: ${({ theme }) => theme.bgColor01 + "f1"};
   color: rgba(255, 255, 255, 0.9);
   font-size: 16px;
   font-weight: 600;
 
   p {
     font-size: 17px;
+    padding: 5px 0px;
   }
 
   .label {
-    color: #34b3f1;
+    color: ${({ theme }) => theme.blue01};
     margin-bottom: 2px;
     font-size: 15px;
+    padding: 0px;
   }
 `;
 
@@ -267,8 +335,9 @@ const ResponseBox = styled.div`
     top: -5px;
     left: 25px;
   }
-  @media (max-width: 700px) {
-    max-width: 95%;
+  @media (max-width: 420px) {
+    max-width: 98%;
+    font-size: 14px;
   }
 `;
 
@@ -293,8 +362,8 @@ const FeedbackBox = styled.div`
   padding: 12px;
   border-radius: 8px;
   color: ${({ theme }) => theme.color};
-  background: ${({ theme }) => theme.grey};
-  border: 1px solid ${({ theme }) => theme.darkGrey + "22"};
+  background: ${({ theme }) => theme.grey + "bb"};
+  outline: 2px solid ${({ theme }) => theme.darkGrey + "44"};
   cursor: pointer;
 
   &:hover {

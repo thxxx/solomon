@@ -12,6 +12,8 @@ import {
 import { CustomButton } from "../pages";
 import { dbService } from "../utils/fbase";
 import styled from "@emotion/styled";
+import { useToast } from "@chakra-ui/react";
+import { useStore } from "../utils/store";
 
 type FeedbackModelProps = {
   isOpen: boolean;
@@ -24,20 +26,27 @@ const FeedbackModal = ({
   isOpen,
   onOpen,
   onClose,
-  problem,
+  problem = "main",
 }: FeedbackModelProps) => {
   const options = [1, 2, 3, 4, 5];
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(1);
+  const { uid } = useStore();
+  const toast = useToast();
 
   const sendFeedback = () => {
+    if (feedback.length < 3) return;
     const body = {
       createdAt: new Date(),
       rating: rating,
       content: feedback,
       problemId: problem,
+      uid: uid,
     };
     dbService.collection("feedback").add(body);
+    setRating(1);
+    setFeedback("");
+    toast({ description: "Thank you for feedback." });
     onClose();
   };
 
@@ -64,6 +73,7 @@ const FeedbackModal = ({
           </RadioBox>
 
           <Textarea
+            placeholder="Ex. the link is not working"
             value={feedback}
             mt={5}
             rows={4}
@@ -103,7 +113,8 @@ const Radio = styled.button<{ isClicked: boolean }>`
   height: 36px;
   margin-right: 10px;
   border: 1px solid ${({ theme }) => theme.grey};
-  background: ${({ isClicked }) => (isClicked ? "black" : "white")};
+  background: ${({ isClicked, theme }) =>
+    isClicked ? theme.blue01 + "aa" : "white"};
 
   &:focus {
     outline: 2.5px solid ${({ theme }) => theme.darkGrey + "44"};
