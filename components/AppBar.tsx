@@ -8,11 +8,15 @@ const AppBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <AppBarContainer
-      onClick={() => {
-        onOpen();
-      }}>
-      Do you have any feedback? ✋🏻 <ArrowForwardIcon />
+    <AppBarContainer>
+      <span>See what other people asked!</span>
+      <span
+        onClick={() => {
+          onOpen();
+        }}>
+        Do you have any feedback? ✋🏻
+        <ArrowForwardIcon />
+      </span>
       <FeedbackModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
     </AppBarContainer>
   );
@@ -25,6 +29,14 @@ const AppBarContainer = styled.div`
   width: 100%;
   background: black;
   color: white;
-  padding: 12px 20px;
+  padding: 14px 4vw;
   cursor: pointer;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  @media (max-width: 600px) {
+    font-size: 10px;
+  }
 `;

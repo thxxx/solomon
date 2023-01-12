@@ -1,4 +1,4 @@
-import { Box, Textarea } from "@chakra-ui/react";
+import { Box, Input, Textarea } from "@chakra-ui/react";
 import React, { useState } from "react";
 import {
   Modal,
@@ -57,7 +57,7 @@ const FeedbackModal = ({
         <ModalHeader>Thank you for Feedback</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <p>If you have any feedback, please let us know.</p>
+          <p>Rating</p>
           <RadioBox>
             {options.map((value) => {
               return (
@@ -80,6 +80,8 @@ const FeedbackModal = ({
             onChange={(e) => setFeedback(e.currentTarget.value)}
             resize="none"
           />
+          <Label>If you want to get reply, let us know you email.</Label>
+          <Input placeholder="contact@diceyai.com" />
         </ModalBody>
         <ModalFooter>
           <CustomButton onClick={() => sendFeedback()}>Send</CustomButton>
@@ -91,10 +93,20 @@ const FeedbackModal = ({
 
 export default React.memo(FeedbackModal);
 
+const Label = styled.p`
+  margin-top: 5px;
+  padding: 15px 0px;
+`;
+
 const CustomModalContent = styled(ModalContent)`
   border: 2px solid rgba(0, 0, 0, 0.8);
   font-size: 1.1em;
   color: rgba(0, 0, 0, 0.9);
+
+  @media (max-width: 500px) {
+    font-size: 14px;
+    width: 90%;
+  }
 `;
 
 const RadioBox = styled.div`

@@ -11,16 +11,10 @@ import Link from "next/link";
 import Examples from "./components/Examples";
 import router from "next/router";
 import { useStore } from "../utils/store";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-} from "@chakra-ui/react";
 import { v4 as uuidv4 } from "uuid";
+import { dummy } from "../utils/utters";
+import Footer from "../components/Footer";
+import AskModal from "../components/AskModal";
 
 export const LOCAL_ID = "solomon_uuid";
 
@@ -53,25 +47,26 @@ const Home: NextPage = () => {
   };
 
   const callApi = async () => {
-    // console.log("요청 보내기");
+    console.log("문제 요청 보내기");
 
-    // const body = {
-    //   type: "problem",
-    //   query: problem,
-    // };
+    const body = {
+      type: "problem",
+      query: problem,
+    };
 
-    // const response = await fetch("/api/hello", {
-    //   method: "POST",
-    //   body: JSON.stringify(body),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "Access-Control-Allow-Origin": "*",
-    //   },
-    // });
-    // const output = await response.json();
-    // console.log("API 결과", output.data[0]);
-    // return output;
-    return "answer";
+    const response = await fetch("/api/hello", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+
+    const output = await response.json();
+    console.log("문제 API 결과", output.data);
+    if (!output) return dummy;
+    return output.data;
   };
 
   const sendProblem = async () => {
@@ -80,42 +75,39 @@ const Home: NextPage = () => {
       alert("Please type");
       return;
     }
-    if (count && parseInt(count) > 2) {
-      // onOpen();
-      // return;
+    if (count && parseInt(count) > 4) {
+      onOpen();
+      return;
     }
 
     setChanged(10);
     setLoading(true);
 
-    const timeout = setTimeout(async () => {
-      // api로 보내서 응답을 받는다.
-      const response = await callApi();
+    // api로 보내서 응답을 받는다.
+    const response = await callApi();
 
-      const body: ProblemType = {
-        createdAt: new Date(),
-        question: problem,
-        answer: response,
-        uid: uid,
-      };
+    const body: ProblemType = {
+      createdAt: new Date(),
+      question: problem,
+      answer: response,
+      uid: uid,
+    };
 
-      setAnswer(response);
-      setQuestion(problem);
+    setAnswer(response);
+    setQuestion(problem);
 
-      await dbService.collection("problem").add(body);
+    await dbService.collection("problem").add(body);
 
-      setLoading(false);
-      setProblem("");
-      clearTimeout(timeout);
-      if (count)
-        await localStorage.setItem("count", String(parseInt(count) + 1));
-      else await localStorage.setItem("count", "1");
+    setLoading(false);
+    setProblem("");
 
-      router.push({
-        pathname: "/answer",
-        // query: { isFromHome: true, text: value },
-      });
-    }, 2000);
+    if (count) await localStorage.setItem("count", String(parseInt(count) + 1));
+    else await localStorage.setItem("count", "1");
+
+    router.push({
+      pathname: "/answer",
+      // query: { isFromHome: true, text: value },
+    });
   };
 
   return (
@@ -145,6 +137,7 @@ const Home: NextPage = () => {
             sendProblem();
           }}>
           <CustomTextarea
+            placeholder="Ex. I want to keep up-to-date on the deep learning sector, but I don 't know where I can see it."
             value={problem}
             onChange={(e) => setProblem(e.currentTarget.value)}
           />
@@ -152,7 +145,18 @@ const Home: NextPage = () => {
             style={{
               transition: "3s ease",
               height: `${changed * 5}vh`,
-            }}></div>
+            }}>
+            {loading && (
+              <Center>
+                <Image
+                  src="/radarscanner.gif"
+                  alt="loading"
+                  width={50}
+                  height={50}
+                />
+              </Center>
+            )}
+          </div>
           <CustomButton isLoading={loading} onClick={() => sendProblem()}>
             Send My Problem and get answer by Solomon!
           </CustomButton>
@@ -162,6 +166,12 @@ const Home: NextPage = () => {
               can tell you an unexpected solution.
             </p>
             <p>The more detail you write, the better your solution will get.</p>
+            <br />
+            <p>
+              You can ask only 3 times. Because we use OpenAI{"'"}s most
+              expensive GPT with our prompt engineering
+            </p>
+            <br />
             <p>
               <strong>Below are an examples</strong>
             </p>
@@ -169,54 +179,21 @@ const Home: NextPage = () => {
         </FormContainer>
         <Examples />
       </MainContainer>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer">
-          Powered by{" "}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-      {loading && (
-        <Center>
-          <Image src="/radarscanner.gif" alt="loading" width={50} height={50} />
-        </Center>
-      )}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <CustomModalContent>
-          <ModalHeader>Limit</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <p>You can use only 3 times.</p>
-            <p>If you want more, please tell us!</p>
-            <p>khj605123@gmail.com</p>
-          </ModalBody>
-
-          <ModalFooter>
-            <CustomButton onClick={() => onClose()}>OK</CustomButton>
-          </ModalFooter>
-        </CustomModalContent>
-      </Modal>
+      <AskModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+      <Footer />
     </>
   );
 };
 
 export default Home;
-
-const CustomModalContent = styled(ModalContent)`
-  border: 2px solid rgba(0, 0, 0, 0.8);
-  font-size: 1.1em;
-  color: rgba(0, 0, 0, 0.9);
-`;
-
 export const CustomTextarea = styled(Textarea)`
   border: 2px solid rgba(0, 0, 0, 0.6);
   padding: 15px 10px;
+
+  @media (max-width: 500px) {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
   resize: none;
   background: ${({ theme }) => theme.bgColor};
 
@@ -236,6 +213,7 @@ const MainContainer = styled.main`
   // background: ${({ theme }) => theme.bgColor};
   transition: 3s ease;
   min-height: 100vh;
+  padding-bottom: 450px;
 
   h1 {
     font-weight: 700;

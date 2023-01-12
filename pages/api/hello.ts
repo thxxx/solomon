@@ -11,6 +11,12 @@ export default async function handler(
   res: NextApiResponse<any>
 ) {
   console.log("api 호출");
+  let i = 0;
+  setInterval(() => {
+    console.log("체ㅋ", i);
+    i += 1;
+  }, 1000);
+
   const response = await axios.post(
     "https://b9zm4cxhn1.execute-api.us-west-2.amazonaws.com/v1/chat",
     req.body

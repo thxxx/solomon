@@ -33,28 +33,45 @@ const Answer: NextPage = () => {
   const [responses, setResponses] = useState<any[]>([]);
   const [greeting, setGreeting] = useState<string>("");
   const [chats, setChats] = useState<ChatOne[]>();
-  const { question, uid } = useStore();
+  const { question, uid, answer } = useStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
+    const splited_answer = dummy.split("\n").filter((doc) => doc.length > 0);
     let res: any[] = [];
-    for (let i = 0; i < 5; i++) {
-      res.push({
-        solution: dummy[0].response
-          .split("\n")
-          .filter((doc) => doc.length > 0)
-          [0 + i * 3].split(":")[1],
-        description: dummy[0].response
-          .split("\n")
-          .filter((doc) => doc.length > 0)
-          [1 + i * 3].split("Detailed Description of the solution : ")[1],
-        link: dummy[0].response
-          .split("\n")
-          .filter((doc) => doc.length > 0)
-          [2 + i * 3].split("Services or Sites with link : ")[1],
-      });
+    for (let i = 1; i < splited_answer.length; i++) {
+      if (splited_answer[i].includes("Solution ")) {
+        res.push({
+          type: "solution",
+          text: splited_answer[i].split("Solution ")[1],
+        });
+      } else if (splited_answer[i].includes("Detailed Description : ")) {
+        res.push({
+          type: "desc",
+          text: splited_answer[i].split("Detailed Description : ")[1],
+        });
+      } else if (splited_answer[i].includes("Services : ")) {
+        let service = "";
+        if (!splited_answer[i + 1].includes("Solution : "))
+          service += splited_answer[i + 1];
+        if (!splited_answer[i + 2].includes("Solution : ")) {
+          service += "<br />";
+          service += splited_answer[i + 2];
+        }
+        res.push({
+          type: "service",
+          text: service,
+        });
+      }
     }
-    setGreeting(greetings[getRandomInt(0, 19)]);
+    setGreeting(
+      greetings[getRandomInt(0, 19)] +
+        "<br />" +
+        "<br />" +
+        " I think the main cause of your problem is " +
+        splited_answer[0].split("What is the main cause of this problem? : ")[1]
+    );
+    console.log(res);
     setResponses(res);
   }, []);
 
@@ -65,26 +82,26 @@ const Answer: NextPage = () => {
   };
 
   const callApi = async () => {
-    // console.log("요청 보내기");
+    console.log("요청 보내기");
 
-    // const body = {
-    //   type: "chat",
-    //   query: text,
-    // problem:question
-    // };
+    const body = {
+      type: "chat",
+      query: text,
+      problem: question,
+    };
 
-    // const response = await fetch("/api/hello", {
-    //   method: "POST",
-    //   body: JSON.stringify(body),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "Access-Control-Allow-Origin": "*",
-    //   },
-    // });
-    // const output = await response.json();
-    // console.log("API 결과", output.data[0]);
-    // return output;
-    return "answer";
+    const response = await fetch("/api/hello", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    const output = await response.json();
+    console.log("API 결과", output.data[0]);
+    return output;
+    // return "answer";
   };
 
   const submitChat = async (text: string) => {
@@ -143,20 +160,33 @@ const Answer: NextPage = () => {
         </ImageWrapper>
         <ResponseBox>
           <span className="tail"></span>
-          <p className="greeting">{greeting}</p>
+          <p
+            className="greeting"
+            dangerouslySetInnerHTML={{
+              __html: greeting,
+            }}></p>
           {responses.map((item, i) => {
             return (
               <Response key={i}>
-                {/* <Divider color="black" width={4} /> */}
-                <div className="solution">
-                  <span>Solution {i}: </span>
-                  {item.solution}
-                </div>
-                <div className="desc">
-                  <p className="label">Description</p>
-                  {item.description}
-                </div>
-                <div className="link">{item.link}</div>
+                {item.type === "solution" && (
+                  <div className="solution">
+                    <span>Solution </span>
+                    {item.text}
+                  </div>
+                )}
+                {item.type === "desc" && (
+                  <div className="desc">
+                    <p className="label">Description</p>
+                    {item.text}
+                  </div>
+                )}
+                {item.type === "service" && (
+                  <p
+                    className="link"
+                    dangerouslySetInnerHTML={{
+                      __html: item.text,
+                    }}></p>
+                )}
               </Response>
             );
           })}
@@ -277,6 +307,11 @@ const Response = styled.div`
 
   .desc {
     padding: 5px 10px;
+  }
+
+  .link{
+    padding: 5px 10px;
+
   }
 
   .label {
