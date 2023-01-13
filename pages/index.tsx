@@ -115,20 +115,36 @@ const Home: NextPage = () => {
       <Head>
         <title>Solomon</title>
         <meta name="description" content="Solomon will give you solution" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/card.png" />
       </Head>
 
       <MainContainer
         style={{
-          paddingTop: `${(10 - changed) * 14}px`,
+          paddingTop: `${(10 - changed) * 10 + 40}px`,
         }}>
-        <h1>
+        <Image
+          src="/king.png"
+          width={120 + changed * 6}
+          height={120 + changed * 6}
+          alt="king"
+          style={{
+            transition: "3s ease",
+          }}
+        />
+        <h1
+          style={{
+            fontSize: `${(10 - changed) * 0.35}em`,
+          }}>
           Let me help you <span>Solomon</span>
         </h1>
-        <h2>
+        <h2
+          style={{
+            fontSize: `${(10 - changed) * 0.13}em`,
+            marginTop: `${2 * (10 - changed)}px`,
+          }}>
           Please write down the problem you are experiencing in detail below.
           <br />
-          Our AI, Solomon will make 5 solutions for you.
+          Our AI, Solomon will make 4 solutions for you.
         </h2>
 
         <FormContainer
@@ -149,10 +165,10 @@ const Home: NextPage = () => {
             {loading && (
               <Center>
                 <Image
-                  src="/radarscanner.gif"
+                  src="/circle.gif"
                   alt="loading"
-                  width={50}
-                  height={50}
+                  width={100}
+                  height={100}
                 />
               </Center>
             )}
@@ -165,11 +181,16 @@ const Home: NextPage = () => {
               I{"'"}m not a human being, I{"'"}m an <span>SMART AI</span>, so I
               can tell you an unexpected solution.
             </p>
-            <p>The more detail you write, the better your solution will get.</p>
+            <p>
+              The more detail you write, the better your solution comes out.
+            </p>
             <br />
             <p>
-              You can ask only 3 times. Because we use OpenAI{"'"}s most
-              expensive GPT with our prompt engineering
+              You can ask only 5 times for free.{" "}
+              <strong>
+                Because we use OpenAI{"'"}s most expensive GPT with our prompt
+                engineering
+              </strong>
             </p>
             <br />
             <p>
@@ -217,9 +238,9 @@ const MainContainer = styled.main`
 
   h1 {
     font-weight: 700;
-    font-size: 3.5em;
     text-align: center;
     opacity: 0.9;
+    transition: 3s ease;
 
     span {
       color: ${({ theme }) => theme.blue02};
@@ -227,13 +248,12 @@ const MainContainer = styled.main`
   }
 
   h2 {
-    margin-top: 20px;
-    font-size: 1.1em;
     text-align: center;
+    transition: 3s ease;
   }
 
   @media (max-width: 420px) {
-    font-size: 13px;
+    font-size: 12px;
   }
 `;
 

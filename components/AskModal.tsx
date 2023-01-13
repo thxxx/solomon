@@ -46,7 +46,7 @@ const AskModal = ({ isOpen, onClose, onOpen }: AskModelProps) => {
         <ModalHeader>Limit</ModalHeader>
         <ModalCloseButton />
         <CustomModalBody>
-          <p>You can use only 3 times.</p>
+          <p>You can use only 5 times.</p>
           <p>
             If you want more, please tell us! We will let you use in 5 minutes.
           </p>

@@ -33,11 +33,15 @@ const Answer: NextPage = () => {
   const [responses, setResponses] = useState<any[]>([]);
   const [greeting, setGreeting] = useState<string>("");
   const [chats, setChats] = useState<ChatOne[]>();
+  const [loading, setLoading] = useState(false);
   const { question, uid, answer } = useStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    const splited_answer = dummy.split("\n").filter((doc) => doc.length > 0);
+    const splited_answer = answer
+      .split("\n")
+      .filter((doc) => doc && doc.length > 4);
+    console.log("스플리티드", splited_answer);
     let res: any[] = [];
     for (let i = 1; i < splited_answer.length; i++) {
       if (splited_answer[i].includes("Solution ")) {
@@ -50,17 +54,23 @@ const Answer: NextPage = () => {
           type: "desc",
           text: splited_answer[i].split("Detailed Description : ")[1],
         });
-      } else if (splited_answer[i].includes("Services : ")) {
+      } else if (splited_answer[i].includes("Service or Site : ")) {
         let service = "";
-        if (!splited_answer[i + 1].includes("Solution : "))
+        if (
+          splited_answer[i + 1] &&
+          !splited_answer[i + 1].includes("Solution ")
+        )
           service += splited_answer[i + 1];
-        if (!splited_answer[i + 2].includes("Solution : ")) {
+        if (
+          splited_answer[i + 2] &&
+          !splited_answer[i + 2].includes("Solution ")
+        ) {
           service += "<br />";
           service += splited_answer[i + 2];
         }
         res.push({
           type: "service",
-          text: service,
+          text: splited_answer[i].split("Service or Site : ")[1],
         });
       }
     }
@@ -69,7 +79,7 @@ const Answer: NextPage = () => {
         "<br />" +
         "<br />" +
         " I think the main cause of your problem is " +
-        splited_answer[0].split("What is the main cause of this problem? : ")[1]
+        splited_answer[0].split("Main cause of this problem : ")[1]
     );
     console.log(res);
     setResponses(res);
@@ -100,7 +110,7 @@ const Answer: NextPage = () => {
     });
     const output = await response.json();
     console.log("API 결과", output.data[0]);
-    return output;
+    return output.data;
     // return "answer";
   };
 
@@ -108,15 +118,37 @@ const Answer: NextPage = () => {
     console.log("채팅을 보낸다.", text);
     if (text.length < 2) return;
     if (chats && chats.length > 5) return;
+    if (loading) return;
 
-    setChats([
-      {
-        type: ChatType.client,
-        text: text,
-      },
-    ]);
+    setLoading(true);
+
+    if (chats)
+      setChats([
+        ...chats,
+        {
+          type: ChatType.client,
+          text: text,
+        },
+        {
+          type: ChatType.bot,
+          text: "typing..",
+        },
+      ]);
+    else
+      setChats([
+        {
+          type: ChatType.client,
+          text: text,
+        },
+        {
+          type: ChatType.bot,
+          text: "typing..",
+        },
+      ]);
 
     const response = await callApi();
+
+    console.log("응답 체크", response);
 
     const body = {
       createdAt: new Date(),
@@ -128,18 +160,32 @@ const Answer: NextPage = () => {
 
     await dbService.collection("chat").add(body);
 
-    setChats([
-      {
-        type: ChatType.client,
-        text: text,
-      },
-      {
-        type: ChatType.bot,
-        text: response,
-      },
-    ]);
+    if (chats)
+      setChats([
+        ...chats,
+        {
+          type: ChatType.client,
+          text: text,
+        },
+        {
+          type: ChatType.bot,
+          text: response.split(":")[1].replace("[Your Name]", "Solomon"),
+        },
+      ]);
+    else
+      setChats([
+        {
+          type: ChatType.client,
+          text: text,
+        },
+        {
+          type: ChatType.bot,
+          text: response.split(":")[1].replace("[Your Name]", "Solomon"),
+        },
+      ]);
 
     setText("");
+    setLoading(false);
   };
 
   return (
@@ -147,7 +193,7 @@ const Answer: NextPage = () => {
       <Head>
         <title>Solomon Answer</title>
         <meta name="description" content="Solomon will give you solution" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/card.png" />
       </Head>
       <AnswerContainer>
         <ProblemBox>
@@ -181,11 +227,10 @@ const Answer: NextPage = () => {
                   </div>
                 )}
                 {item.type === "service" && (
-                  <p
-                    className="link"
-                    dangerouslySetInnerHTML={{
-                      __html: item.text,
-                    }}></p>
+                  <p className="link">
+                    <span>Service or Site : </span>
+                    {item.text}
+                  </p>
                 )}
               </Response>
             );

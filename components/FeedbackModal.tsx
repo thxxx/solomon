@@ -57,7 +57,7 @@ const FeedbackModal = ({
         <ModalHeader>Thank you for Feedback</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <p>Rating</p>
+          <p>Rating : How was your experience?</p>
           <RadioBox>
             {options.map((value) => {
               return (
