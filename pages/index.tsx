@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 import { dummy } from "../utils/utters";
 import Footer from "../components/Footer";
 import AskModal from "../components/AskModal";
+import axios from "axios";
 
 export const LOCAL_ID = "solomon_uuid";
 
@@ -47,26 +48,23 @@ const Home: NextPage = () => {
   };
 
   const callApi = async () => {
-    console.log("문제 요청 보내기");
+    console.log("문제 요청 보내기11");
 
     const body = {
       type: "problem",
       query: problem,
     };
 
-    const response = await fetch(
-      "https://b9zm4cxhn1.execute-api.us-west-2.amazonaws.com/v1/chat",
-      {
-        method: "POST",
-        body: JSON.stringify(body),
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    const response = await axios.post("/chat", body, {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
 
-    const output = await response.json();
+    console.log("응답", response);
+    const output = response;
+    // const output = await response.json();
     console.log("문제 API 결과", output.data);
     if (!output) return dummy;
     return output.data;
@@ -271,9 +269,12 @@ const FormContainer = styled.div`
 `;
 
 const Center = styled.div`
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const CustomButton = styled(Button)`

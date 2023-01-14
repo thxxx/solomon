@@ -17,6 +17,7 @@ import Image from "next/image";
 import { dbService } from "../../utils/fbase";
 import FeedbackModal from "../../components/FeedbackModal";
 import Head from "next/head";
+import axios from "axios";
 
 enum ChatType {
   bot = "bot",
@@ -100,15 +101,13 @@ const Answer: NextPage = () => {
       problem: question,
     };
 
-    const response = await fetch("/api/hello", {
-      method: "POST",
-      body: JSON.stringify(body),
+    const response = await axios.post("/chat", body, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
     });
-    const output = await response.json();
+    const output = await response;
     console.log("API 결과", output.data[0]);
     return output.data;
     // return "answer";
@@ -251,7 +250,10 @@ const Answer: NextPage = () => {
           } else {
             return (
               <ChatBubble left key={i}>
-                <div>{item.text}</div>
+                <div>
+                  <Image src="/king.png" alt="we" width={20} height={15} />
+                  <span>{item.text}</span>
+                </div>
               </ChatBubble>
             );
           }
@@ -465,6 +467,10 @@ const ChatBubble = styled.div<{ left?: boolean }>`
   justify-content: ${({ left }) => (left ? "flex-start" : "flex-end")};
 
   div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     padding: 15px 20px;
     border-radius: 8px;
     border-bottom-right-radius: ${({ left }) => (left ? "8px" : "0px")};
@@ -472,5 +478,9 @@ const ChatBubble = styled.div<{ left?: boolean }>`
     color: ${({ theme }) => theme.color};
     background: ${({ theme }) => theme.grey};
     max-width: 90%;
+
+    span {
+      margin-left: 8px;
+    }
   }
 `;
