@@ -166,10 +166,15 @@ const Home: NextPage = () => {
             {loading && (
               <Center>
                 <Image
-                  src="/circle.gif"
+                  style={{
+                    padding: "15px",
+                    background: "rgba(255,255,255,0.3)",
+                    borderRadius: "4px",
+                  }}
+                  src="/crown.gif"
                   alt="loading"
-                  width={100}
-                  height={100}
+                  width={130}
+                  height={130}
                 />
               </Center>
             )}
