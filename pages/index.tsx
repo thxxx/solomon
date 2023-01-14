@@ -54,14 +54,17 @@ const Home: NextPage = () => {
       query: problem,
     };
 
-    const response = await fetch("/api/hello", {
-      method: "POST",
-      body: JSON.stringify(body),
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    const response = await fetch(
+      "https://b9zm4cxhn1.execute-api.us-west-2.amazonaws.com/v1/chat",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
 
     const output = await response.json();
     console.log("문제 API 결과", output.data);

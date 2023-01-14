@@ -32,5 +32,6 @@
     "eslint-config-next": "13.1.1",
     "typescript": "4.9.4"
   },
+  "homepage": "https://solomongpt.com",
   "proxy": "https://b9zm4cxhn1.execute-api.us-west-2.amazonaws.com/v1"
 }

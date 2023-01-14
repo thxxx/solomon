@@ -12,11 +12,12 @@ export default async function handler(
 ) {
   console.log("api 호출");
 
-  const response = await axios.post(
-    "https://b9zm4cxhn1.execute-api.us-west-2.amazonaws.com/v1/chat",
-    req.body
-  );
-  console.log("api 응답");
+  // const response = await axios.post(
+  //   "https://b9zm4cxhn1.execute-api.us-west-2.amazonaws.com/v1/chat",
+  //   req.body
+  // );
+  // console.log("api 응답");
 
-  res.status(200).json({ data: response.data });
+  // res.status(200).json({ data: response.data });
+  res.status(200).json({ data: "response.da" });
 }
