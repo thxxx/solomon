@@ -121,14 +121,27 @@ const Home: NextPage = () => {
 
       <MainContainer
         style={{
-          paddingTop: `${(10 - changed) * 10 + 40}px`,
+          paddingTop: `${(10 - changed) * 5 + 20}px`,
         }}>
+        <a
+          href="https://www.producthunt.com/posts/solomongpt-solution-recommender-for-u?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-solomongpt&#0045;solution&#0045;recommender&#0045;for&#0045;u"
+          target="_blank"
+          rel="noreferrer">
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=375764&theme=light"
+            alt="SolomonGPT&#0032;&#0045;&#0032;solution&#0032;recommender&#0032;for&#0032;U - AI&#0032;will&#0032;give&#0032;you&#0032;4&#0032;solutions&#0032;to&#0032;solve&#0032;your&#0032;problem&#0046; | Product Hunt"
+            style={{ width: "250px", height: "54px" }}
+            width="250"
+            height="54"
+          />
+        </a>
         <Image
           src="/king.png"
           width={120 + changed * 6}
           height={120 + changed * 6}
           alt="king"
           style={{
+            marginTop: "60px",
             transition: "3s ease",
           }}
         />
@@ -213,6 +226,7 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
 export const CustomTextarea = styled(Textarea)`
   border: 2px solid rgba(0, 0, 0, 0.6);
   padding: 15px 10px;
