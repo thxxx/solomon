@@ -1,23 +1,23 @@
-import styled from "@emotion/styled";
-import Image from "next/image";
-import React from "react";
+import styled from '@emotion/styled'
+import Image from 'next/image'
+import React from 'react'
 
 const Footer = () => {
   return (
     <FooterContainer>
-      <div className="container">
-        <div className="logo">Solomon</div>
-        <div className="middle">
-          <span className="sentence">Solve all Problems by AI</span>
-          <span>contact@diceyai.com</span>
+      <div className='container'>
+        <div className='logo'>Challenges</div>
+        <div className='middle'>
+          <span className='sentence'>Coding Challenges</span>
+          <span>khj605123@gmail.com</span>
         </div>
-        <div className="site">© 2023 Solomon, Inc. All rights reserved.</div>
+        <div className='site'>© 2023 CC, Inc. All rights reserved.</div>
       </div>
     </FooterContainer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer
 
 const FooterContainer = styled.footer`
   display: flex;
@@ -82,4 +82,4 @@ const FooterContainer = styled.footer`
     text-align: right;
     font-size: 0.9em;
   }
-`;
+`

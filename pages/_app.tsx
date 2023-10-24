@@ -1,45 +1,45 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import { ChakraProvider } from "@chakra-ui/react";
-import styled from "@emotion/styled";
+import '../styles/globals.css'
+import type { AppProps } from 'next/app'
+import { ChakraProvider } from '@chakra-ui/react'
+import styled from '@emotion/styled'
 // import { useChatStore } from "../utils/store";
-import { ThemeProvider } from "@emotion/react";
-import { lightTheme, darkTheme } from "../styles/theme";
-import { useStore } from "../utils/store";
-import AppBar from "../components/AppBar";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import * as ga from "../lib/gtag";
-import Script from "next/script";
+import { ThemeProvider } from '@emotion/react'
+import { lightTheme, darkTheme } from '../styles/theme'
+import { useStore } from '../utils/store'
+import AppBar from '../components/AppBar'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import * as ga from '../lib/gtag'
+import Script from 'next/script'
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const { darkMode } = useStore();
-  const theme = darkMode ? darkTheme : lightTheme;
+  const { darkMode } = useStore()
+  const theme = darkMode ? darkTheme : lightTheme
 
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {
-      ga.pageview(url);
-    };
-    router.events.on("routeChangeComplete", handleRouteChange);
-    router.events.on("hashChangeComplete", handleRouteChange);
+      ga.pageview(url)
+    }
+    router.events.on('routeChangeComplete', handleRouteChange)
+    router.events.on('hashChangeComplete', handleRouteChange)
 
     return () => {
-      router.events.off("routeChangeComplete", handleRouteChange);
-      router.events.off("hashChangeComplete", handleRouteChange);
-    };
-  }, [router.events]);
+      router.events.off('routeChangeComplete', handleRouteChange)
+      router.events.off('hashChangeComplete', handleRouteChange)
+    }
+  }, [router.events])
 
   return (
     <ChakraProvider>
       <Script
-        strategy="afterInteractive"
+        strategy='afterInteractive'
         src={`https://www.googletagmanager.com/gtag/js?id=${ga.GA_TRACKING_ID}`}
       />
       <Script
-        id="myscript"
-        strategy="afterInteractive"
+        id='myscript'
+        strategy='afterInteractive'
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
@@ -54,20 +54,19 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ThemeProvider theme={theme}>
         <MobileContainer>
           <AppBar />
-          <div className="backdrop" />
-          <div className="inner">
+          <div className='backdrop' />
+          <div className='inner'>
             <Component {...pageProps} />
           </div>
         </MobileContainer>
       </ThemeProvider>
     </ChakraProvider>
-  );
+  )
 }
 
-export default MyApp;
+export default MyApp
 
 const MobileContainer = styled.div`
-  background: url("grad.png");
   font-family: Pretendard;
   width: 100%;
   // background: ${({ theme }) => theme.bgColor};
@@ -92,7 +91,7 @@ const MobileContainer = styled.div`
   }
 
   .backdrop {
-    background: ${({ theme }) => theme.bgColor + "88"};
+    background: ${({ theme }) => theme.bgColor + '88'};
     position: fixed;
     top: 0;
     left: 0;
@@ -100,4 +99,4 @@ const MobileContainer = styled.div`
     width: 100vw;
     height: 100vh;
   }
-`;
+`
